@@ -13,6 +13,7 @@ metadata:
 
 source:
   platform: azure-devops
+  queryName: Policy - Items In Project Root Area
   query: |
     SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
            [System.State], [System.Tags], [System.AreaPath]
@@ -29,4 +30,3 @@ policy:
       threshold: 0
   severity: low
   action: warn
-

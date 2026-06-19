@@ -13,6 +13,7 @@ metadata:
 
 source:
   platform: azure-devops
+  queryName: Policy - Tasks With Invalid Parent Type
   query: |
     SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
            [System.State], [System.AreaPath], [System.Tags]
@@ -39,4 +40,3 @@ policy:
       threshold: 0
   severity: medium
   action: warn
-

@@ -13,6 +13,7 @@ metadata:
 
 source:
   platform: azure-devops
+  queryName: Policy - Active Items Missing Estimates
   query: |
     SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
            [System.State], [Microsoft.VSTS.Scheduling.Effort], [System.AreaPath], [System.Tags]

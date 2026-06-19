@@ -15,6 +15,7 @@ metadata:
 
 source:
   platform: azure-devops
+  queryName: Policy - Overdue Active Work Items
   query: |
     SELECT [System.Id], [System.Title], [System.State], [Microsoft.VSTS.Scheduling.TargetDate],
            [System.AssignedTo]

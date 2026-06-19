@@ -13,6 +13,7 @@ metadata:
 
 source:
   platform: azure-devops
+  queryName: Policy - Backlog Items Missing Parent
   query: |
     SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
            [System.State], [System.AreaPath], [System.Tags]
@@ -45,4 +46,3 @@ policy:
       threshold: 0
   severity: high
   action: warn
-

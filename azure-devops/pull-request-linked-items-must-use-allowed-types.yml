@@ -14,6 +14,7 @@ metadata:
 
 source:
   platform: azure-devops
+  queryName: Policy - PR Items With Disallowed Types
   query: |
     SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
            [System.State], [System.AreaPath], [Microsoft.VSTS.Scheduling.Effort], [System.Tags]
@@ -36,4 +37,3 @@ policy:
       threshold: 0
   severity: high
   action: block
-

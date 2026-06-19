@@ -17,6 +17,7 @@ metadata:
 
 source:
   platform: azure-devops
+  queryName:   # User-friendly query title used when creating/storing queries in Azure DevOps UI
   query: |    # WIQL query that selects the work items in scope
 
 policy:
@@ -34,14 +35,13 @@ policy:
 A standard [Azure DevOps WIQL](https://learn.microsoft.com/en-us/azure/devops/boards/queries/wiql-syntax) query.  
 The query **must** include `SELECT` and `FROM WorkItems` at minimum.
 
-### `policy.rules[].condition`
+### Policy evaluation model
 
-| Condition | Required extra fields | Description |
-|-----------|-----------------------|-------------|
-| `max_count` | `threshold` | Fails if the query returns more than `threshold` items |
-| `min_count` | `threshold` | Fails if the query returns fewer than `threshold` items |
-| `field_equals` | `field`, `value` | Fails if any returned item has `field` ≠ `value` |
-| `field_not_empty` | `field` | Fails if any returned item has an empty `field` |
+The policy engine evaluates templates as a **violation query**:
+
+- The WIQL query should return only non-compliant work items.
+- A single `max_count` rule with `threshold: 0` is used to enforce that no violating items exist.
+- If the query returns one or more items, the policy fails based on `severity` and `action`.
 
 ## Available templates
 

@@ -15,6 +15,7 @@ metadata:
 
 source:
   platform: azure-devops
+  queryName: Policy - Active Items Missing Required Fields
   # The query intentionally selects items that are MISSING at least one required
   # field so that a max_count: 0 rule catches them immediately.
   query: |
@@ -38,19 +39,9 @@ source:
 
 policy:
   rules:
-    - id: assigned-to-not-empty
-      description: Every active work item must be assigned to a team member.
-      condition: field_not_empty
-      field: System.AssignedTo
-
-    - id: area-path-set
-      description: Area Path must be set to a value other than the project root.
-      condition: field_not_empty
-      field: System.AreaPath
-
-    - id: iteration-path-set
-      description: Iteration Path must be set to a value other than the project root.
-      condition: field_not_empty
-      field: System.IterationPath
+    - id: zero-active-items-missing-required-fields
+      description: No active work item should be missing required field values.
+      condition: max_count
+      threshold: 0
   severity: low
   action: warn

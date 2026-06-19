@@ -4,8 +4,8 @@ metadata:
   name: recently-changed-items-in-team-area
   title: Recently Changed Items In Team Area
   description: >
-    Returns recently changed work items for a specific team area. Replace
-    TEAM_AREA_DESCRIPTOR with your team descriptor in the
+    Flags recently changed work items that are outside a specific team area.
+    Replace TEAM_AREA_DESCRIPTOR with your team descriptor in the
     @teamAreas('[Project]\Team <id:GUID>') format.
   tags:
     - team-scope
@@ -14,19 +14,20 @@ metadata:
 
 source:
   platform: azure-devops
+  queryName: Policy - Recent Items Outside Team Area
   query: |
     SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
            [System.State], [System.Tags]
     FROM WorkItems
     WHERE [System.TeamProject] = @project
       AND [System.ChangedDate] > @today - 60
-      AND [System.AreaPath] = @teamAreas('TEAM_AREA_DESCRIPTOR')
+      AND NOT [System.AreaPath] UNDER @teamAreas('TEAM_AREA_DESCRIPTOR')
 
 policy:
   rules:
-    - id: at-least-one-recent-item-in-team-area
-      description: At least one recently changed item should exist in the team area.
-      condition: min_count
-      threshold: 1
+    - id: zero-recent-items-outside-team-area
+      description: Recently changed items must stay within the configured team area.
+      condition: max_count
+      threshold: 0
   severity: low
-  action: notify
+  action: warn

@@ -14,6 +14,7 @@ metadata:
 
 source:
   platform: azure-devops
+  queryName: Policy - No Open Critical Bugs
   query: |
     SELECT [System.Id], [System.Title], [System.State], [Microsoft.VSTS.Common.Severity]
     FROM WorkItems
