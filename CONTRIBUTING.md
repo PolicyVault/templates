@@ -41,22 +41,19 @@ Branch names must follow this pattern:
 
 | Type | When to use |
 |------|-------------|
-| `feat` | Adding a new policy template or feature |
-| `fix` | Fixing an error in an existing template |
-| `docs` | Documentation-only changes |
-| `chore` | Maintenance tasks (CI, tooling, dependencies) |
-| `refactor` | Restructuring templates without changing their meaning |
+| `feature` or `features` | Adding a new policy template or feature |
+| `hotfix` | Urgent production fixes |
+| `release` | Preparing a release branch |
 
 ### Rules
 
 - Use **lowercase letters**, **numbers**, and **hyphens** only — no spaces or underscores.
 - Keep the description **short and descriptive** (3–5 words is ideal).
 - Examples of valid branch names:
-  - `feat/add-data-retention-policy`
-  - `fix/correct-rbac-template-typo`
-  - `docs/update-contributing-guide`
-  - `chore/add-gitignore`
-  - `refactor/reorganise-access-control`
+  - `feature/add-data-retention-policy`
+  - `features/add-data-retention-policy`
+  - `hotfix/urgent-policy-fix`
+  - `release/v1-2-0`
 
 ---
 
