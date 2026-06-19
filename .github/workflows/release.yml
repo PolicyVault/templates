@@ -1,0 +1,97 @@
+name: Validate and release templates
+
+on:
+  pull_request:
+    branches:
+      - '**'
+  push:
+    branches:
+      - '**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      semver: ${{ steps.gitversion.outputs.semVer }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up GitVersion
+        uses: gittools/actions/gitversion/setup@bc6623af8fc07d5a8903052dd46da33403eec8e8 # v4.5.0
+        with:
+          versionSpec: '6.7.x'
+
+      - name: Calculate version
+        id: gitversion
+        uses: gittools/actions/gitversion/execute@bc6623af8fc07d5a8903052dd46da33403eec8e8 # v4.5.0
+
+  validate:
+    needs: version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Validate template YAML and WIQL
+        shell: pwsh
+        run: ./scripts/Test-TemplateFiles.ps1 -Path .
+
+  release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs:
+      - validate
+      - version
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          fetch-depth: 0
+
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: v${{ needs.version.outputs.semver }}
+          TITLE: PolicyVault Templates v${{ needs.version.outputs.semver }}
+        run: |
+          set -euo pipefail
+
+          if ! gh release view "${TAG}" >/dev/null 2>&1; then
+            gh release create "${TAG}" \
+              --target "${GITHUB_SHA}" \
+              --title "${TITLE}" \
+              --generate-notes
+          fi
+
+          mapfile -t template_files < <(find . -mindepth 2 -type f \
+            \( -name '*.yml' -o -name '*.yaml' \) \
+            ! -path './.github/*' \
+            ! -path './scripts/*' \
+            ! -path './dist/*' \
+            | sort)
+
+          if [ "${#template_files[@]}" -eq 0 ]; then
+            echo "No template YAML files found to upload."
+            exit 1
+          fi
+
+          asset_args=()
+          for file in "${template_files[@]}"; do
+            relative_path="${file#./}"
+            asset_name="${relative_path//\//-}"
+            asset_args+=("${file}#${asset_name}")
+          done
+
+          gh release upload "${TAG}" --clobber "${asset_args[@]}"
