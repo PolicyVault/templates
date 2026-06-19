@@ -1,23 +1,29 @@
 # PolicyVault Policy Templates
 
-A collection of reusable policy templates for [PolicyVault](https://github.com/PolicyVault). These templates provide a starting point for defining access-control, compliance, and security policies that can be imported directly into PolicyVault.
+A collection of reusable policy templates for [PolicyVault](https://github.com/PolicyVault). These templates provide a starting point for defining work-item–based policies that can be imported directly into PolicyVault.
 
 ## Overview
 
-This repository contains structured policy templates that cover common use-cases such as:
+Policies in this repository are based on **work item queries** — they use the native query language of the underlying issue-tracking platform to select a set of work items, and then enforce conditions (thresholds, field checks, SLA rules, etc.) against those items.
 
-- Access control and least-privilege policies
-- Data-retention and compliance policies
-- Audit and logging policies
-- Security baseline policies
+### Currently supported platforms
+
+| Platform | Type | Folder |
+|----------|------|--------|
+| Azure DevOps | Work Item Query Language (WIQL) | [`azure-devops/`](azure-devops/) |
+
+### Planned future platforms
+
+- **GitHub Issues** — filter-based policies using GitHub's issue search syntax
+- **Atlassian Jira** — JQL (Jira Query Language) based policies
 
 Each template is designed to be copied, customised, and then imported into a PolicyVault instance.
 
 ## Usage
 
-1. Browse the available templates in the repository.
+1. Browse the platform folder that matches your issue-tracking tool.
 2. Copy the template that best matches your use-case.
-3. Customise the template to fit your organisation's requirements.
+3. Customise the `query`, thresholds, and metadata fields to fit your requirements.
 4. Import the customised template into PolicyVault.
 
 ## Contributing

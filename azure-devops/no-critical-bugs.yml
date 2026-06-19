@@ -1,0 +1,33 @@
+apiVersion: policyvault.io/v1
+kind: WorkItemQueryPolicy
+metadata:
+  name: no-critical-bugs
+  title: No Open Critical Bugs
+  description: >
+    Prevents a release from proceeding when there are open work items of type Bug
+    with severity Critical or 1 - Critical that are not yet resolved or closed.
+    Use this policy as a quality gate in your release pipeline.
+  tags:
+    - quality
+    - bugs
+    - release-gate
+
+source:
+  platform: azure-devops
+  query: |
+    SELECT [System.Id], [System.Title], [System.State], [Microsoft.VSTS.Common.Severity]
+    FROM WorkItems
+    WHERE [System.TeamProject] = @project
+      AND [System.WorkItemType] = 'Bug'
+      AND [Microsoft.VSTS.Common.Severity] IN ('1 - Critical', 'Critical')
+      AND [System.State] NOT IN ('Resolved', 'Closed')
+    ORDER BY [System.CreatedDate] DESC
+
+policy:
+  rules:
+    - id: zero-open-critical-bugs
+      description: There must be no open critical bugs at the time of evaluation.
+      condition: max_count
+      threshold: 0
+  severity: critical
+  action: block
