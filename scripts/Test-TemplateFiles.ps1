@@ -260,8 +260,8 @@ function Get-WiqlValidationErrors {
         $errors.Add('must contain a SELECT clause')
     }
 
-    if ($normalizedQuery -notmatch '\bFROM\s+WORKITEMS\b') {
-        $errors.Add('must query FROM WorkItems')
+    if ($normalizedQuery -notmatch '\bFROM\s+WORKITEM(?:S|LINKS)\b') {
+        $errors.Add('must query FROM WorkItems or FROM WorkItemLinks')
     }
 
     foreach ($error in (Get-BalancedTokenErrors -Query $Query)) {
