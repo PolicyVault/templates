@@ -3,25 +3,26 @@ name: Template validation and release
 on:
   pull_request:
     branches:
-      - '**'
+      - main
   push:
     branches:
-      - '**'
+      - main
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   version:
     name: Calculate release version
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
       semver: ${{ steps.gitversion.outputs.semVer }}
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v4.1.1
         with:
           fetch-depth: 0
 
@@ -36,12 +37,11 @@ jobs:
 
   validate:
     name: Validate template YAML and WIQL
-    needs: version
     runs-on: ubuntu-latest
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v4.1.1
         with:
           fetch-depth: 0
 
@@ -55,11 +55,13 @@ jobs:
     needs:
       - validate
       - version
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v4.1.1
         with:
           fetch-depth: 0
 

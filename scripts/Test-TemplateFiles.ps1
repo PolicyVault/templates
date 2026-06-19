@@ -255,11 +255,11 @@ function Get-WiqlValidationErrors {
     }
 
     $normalizedQuery = $Query.ToUpperInvariant()
-    if (-not $normalizedQuery.Contains('SELECT')) {
+    if ($normalizedQuery -notmatch '\bSELECT\b') {
         $errors.Add('must contain a SELECT clause')
     }
 
-    if (-not $normalizedQuery.Contains('FROM WORKITEMS')) {
+    if ($normalizedQuery -notmatch '\bFROM\s+WORKITEMS\b') {
         $errors.Add('must query FROM WorkItems')
     }
 
