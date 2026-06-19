@@ -76,7 +76,8 @@ jobs:
             gh release create "${TAG}" \
               --target "${GITHUB_SHA}" \
               --title "${TITLE}" \
-              --generate-notes
+              --generate-notes \
+              --draft
           fi
 
           mapfile -t template_files < <(git ls-files \
@@ -100,3 +101,5 @@ jobs:
           done
 
           gh release upload "${TAG}" --clobber "${asset_args[@]}"
+
+          gh release edit "${TAG}" --draft=false
