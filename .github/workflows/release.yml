@@ -15,7 +15,6 @@ permissions:
 jobs:
   version:
     name: Calculate release version
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
       semver: ${{ steps.gitversion.outputs.semVer }}
