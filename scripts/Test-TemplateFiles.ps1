@@ -120,6 +120,62 @@ function Get-PropertyValue {
     return $property.Value
 }
 
+function Ensure-ConvertFromYaml {
+    if (Get-Command -Name ConvertFrom-Yaml -ErrorAction SilentlyContinue) {
+        return
+    }
+
+    try {
+        Install-Module -Name powershell-yaml -Scope CurrentUser -Force -ErrorAction Stop
+    }
+    catch {
+        return
+    }
+
+    Import-Module powershell-yaml -ErrorAction SilentlyContinue
+}
+
+function ConvertFrom-TemplateYaml {
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$FilePath
+    )
+
+    Ensure-ConvertFromYaml
+
+    if (Get-Command -Name ConvertFrom-Yaml -ErrorAction SilentlyContinue) {
+        return Get-Content -LiteralPath $FilePath -Raw | ConvertFrom-Yaml
+    }
+
+    $rubyCommand = @'
+require "json"
+require "yaml"
+
+path = ENV.fetch("TEMPLATE_FILE")
+content = File.read(path)
+document = YAML.safe_load(content, permitted_classes: [], permitted_symbols: [], aliases: false)
+puts JSON.generate(document)
+'@
+
+    $previousTemplateFile = $env:TEMPLATE_FILE
+    try {
+        $env:TEMPLATE_FILE = $FilePath
+        $output = & ruby -e $rubyCommand 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            throw ($output -join [Environment]::NewLine)
+        }
+    }
+    finally {
+        $env:TEMPLATE_FILE = $previousTemplateFile
+    }
+
+    if ([string]::IsNullOrWhiteSpace(($output -join ''))) {
+        return $null
+    }
+
+    return ($output -join [Environment]::NewLine) | ConvertFrom-Json
+}
+
 function Test-InvalidWiqlCharacter {
     param(
         [Parameter(Mandatory = $true)]
@@ -243,7 +299,7 @@ function Get-WiqlValidationErrors {
 }
 
 $errors = New-Object System.Collections.Generic.List[string]
-$files = Get-TemplateFiles -ScanPath $validationRoot
+$files = @(Get-TemplateFiles -ScanPath $validationRoot)
 
 if ($files.Count -eq 0) {
     Write-Error "No template YAML files were found under '$validationRoot'."
@@ -252,7 +308,7 @@ if ($files.Count -eq 0) {
 
 foreach ($file in $files) {
     try {
-        $document = Get-Content -LiteralPath $file -Raw | ConvertFrom-Yaml
+        $document = ConvertFrom-TemplateYaml -FilePath $file
     }
     catch {
         $errors.Add("$(Get-RelativePath -BasePath $repositoryRoot -TargetPath $file): invalid YAML syntax ($($_.Exception.Message))")
