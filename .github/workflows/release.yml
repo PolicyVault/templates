@@ -1,4 +1,4 @@
-name: Validate and release templates
+name: Template validation and release
 
 on:
   pull_request:
@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   version:
+    name: Calculate release version
     runs-on: ubuntu-latest
     outputs:
       semver: ${{ steps.gitversion.outputs.semVer }}
@@ -34,6 +35,7 @@ jobs:
         uses: gittools/actions/gitversion/execute@bc6623af8fc07d5a8903052dd46da33403eec8e8 # v4.5.0
 
   validate:
+    name: Validate template YAML and WIQL
     needs: version
     runs-on: ubuntu-latest
 
@@ -48,6 +50,7 @@ jobs:
         run: ./scripts/Test-TemplateFiles.ps1 -Path .
 
   release:
+    name: Publish GitHub release assets
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs:
       - validate
