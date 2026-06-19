@@ -35,6 +35,6 @@ policy:
   rules:
     - id: zero-features-under-non-epic
       description: Work items must not match the non-epic parent query.
-      condition: false
+      mustBeInQueryResults: false
   severity: medium
   action: warn

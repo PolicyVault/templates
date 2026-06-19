@@ -42,6 +42,6 @@ policy:
   rules:
     - id: zero-items-missing-parent
       description: Work items must not match the missing parent query.
-      condition: false
+      mustBeInQueryResults: false
   severity: high
   action: warn

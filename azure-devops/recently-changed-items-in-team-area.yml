@@ -27,6 +27,6 @@ policy:
   rules:
     - id: zero-recent-items-outside-team-area
       description: Work items must not match the outside-team-area query.
-      condition: false
+      mustBeInQueryResults: false
   severity: low
   action: warn

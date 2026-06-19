@@ -26,6 +26,6 @@ policy:
   rules:
     - id: zero-items-in-root-area
       description: Work items must not match the project root area query.
-      condition: false
+      mustBeInQueryResults: false
   severity: low
   action: warn

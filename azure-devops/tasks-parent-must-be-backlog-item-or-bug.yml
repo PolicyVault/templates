@@ -36,6 +36,6 @@ policy:
   rules:
     - id: zero-tasks-under-invalid-parent
       description: Work items must not match the invalid task parent query.
-      condition: false
+      mustBeInQueryResults: false
   severity: medium
   action: warn

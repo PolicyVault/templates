@@ -24,7 +24,7 @@ policy:
   rules:      # One or more conditions evaluated against the query result
     - id:
       description:
-      condition:  # boolean: false => item must NOT be in query results, true => item must be in query results
+      mustBeInQueryResults:  # boolean: false => item must NOT be in query results, true => item must be in query results
   severity:   # critical | high | medium | low
   action:     # block | warn | notify
 ```
@@ -36,13 +36,13 @@ The query **must** include `SELECT` and `FROM WorkItems` at minimum.
 
 ### Policy evaluation model
 
-The policy engine evaluates templates using a boolean rule condition:
+The policy engine evaluates templates using the boolean `mustBeInQueryResults` rule property:
 
-- `condition: false` means a work item **must not** be in query results.
-- `condition: true` means a work item **must** be in query results.
+- `mustBeInQueryResults: false` means a work item **must not** be in query results.
+- `mustBeInQueryResults: true` means a work item **must** be in query results.
 - Design each template query accordingly:
-  - violation query + `condition: false`
-  - compliance query + `condition: true`
+  - violation query + `mustBeInQueryResults: false`
+  - compliance query + `mustBeInQueryResults: true`
 
 ## Available templates
 

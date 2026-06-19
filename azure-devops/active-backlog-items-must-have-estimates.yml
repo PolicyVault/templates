@@ -31,6 +31,6 @@ policy:
   rules:
     - id: active-items-must-be-estimated
       description: Work items must match the estimated active items query.
-      condition: true
+      mustBeInQueryResults: true
   severity: medium
   action: warn

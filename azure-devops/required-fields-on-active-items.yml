@@ -41,6 +41,6 @@ policy:
   rules:
     - id: zero-active-items-missing-required-fields
       description: Work items must not match the missing required fields query.
-      condition: false
+      mustBeInQueryResults: false
   severity: low
   action: warn

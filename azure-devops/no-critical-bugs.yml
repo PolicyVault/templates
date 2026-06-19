@@ -28,6 +28,6 @@ policy:
   rules:
     - id: zero-open-critical-bugs
       description: Work items must not match the open critical bug query.
-      condition: false
+      mustBeInQueryResults: false
   severity: critical
   action: block

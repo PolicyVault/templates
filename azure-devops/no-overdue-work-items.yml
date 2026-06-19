@@ -35,6 +35,6 @@ policy:
   rules:
     - id: zero-overdue-items
       description: Work items must not match the overdue active item query.
-      condition: false
+      mustBeInQueryResults: false
   severity: medium
   action: warn

@@ -33,6 +33,6 @@ policy:
   rules:
     - id: zero-disallowed-linked-item-types
       description: Work items must not match the disallowed type query.
-      condition: false
+      mustBeInQueryResults: false
   severity: high
   action: block

@@ -38,6 +38,6 @@ policy:
   rules:
     - id: zero-backlog-items-under-non-feature
       description: Work items must not match the invalid parent type query.
-      condition: false
+      mustBeInQueryResults: false
   severity: medium
   action: warn
