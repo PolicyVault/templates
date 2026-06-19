@@ -49,11 +49,12 @@ Branch names must follow this pattern:
 
 - Use **lowercase letters**, **numbers**, and **hyphens** only — no spaces or underscores.
 - Keep the description **short and descriptive** (3–5 words is ideal).
+- Release branches may use dotted version labels like `v1.2.0`.
 - Examples of valid branch names:
   - `feature/add-data-retention-policy`
   - `features/add-data-retention-policy`
   - `hotfix/urgent-policy-fix`
-  - `release/v1-2-0`
+  - `release/v1.2.0`
 
 ---
 
