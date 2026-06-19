@@ -30,6 +30,7 @@ $ErrorActionPreference = 'Stop'
 $validationRoot = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $Path).Path)
 $repositoryRoot = Split-Path -Path $PSScriptRoot -Parent
 $ignoredTopLevelDirectories = @('.git', '.github', 'dist', 'scripts')
+$powerShellYamlVersion = '0.4.12'
 $supportedExtensions = @('.yml', '.yaml')
 
 function Get-RelativePath {
@@ -126,16 +127,16 @@ function Ensure-ConvertFromYaml {
     }
 
     try {
-        Install-Module -Name powershell-yaml -Scope CurrentUser -Force -ErrorAction Stop
+        Install-Module -Name powershell-yaml -RequiredVersion $powerShellYamlVersion -Scope CurrentUser -Force -ErrorAction Stop
     }
     catch {
-        throw "ConvertFrom-Yaml is unavailable and powershell-yaml could not be installed. $($_.Exception.Message)"
+        throw "ConvertFrom-Yaml is unavailable and powershell-yaml $powerShellYamlVersion could not be installed. $($_.Exception.Message)"
     }
 
-    Import-Module powershell-yaml -ErrorAction Stop
+    Import-Module powershell-yaml -RequiredVersion $powerShellYamlVersion -ErrorAction Stop
 
     if (-not (Get-Command -Name ConvertFrom-Yaml -ErrorAction SilentlyContinue)) {
-        throw 'ConvertFrom-Yaml is still unavailable after installing/importing powershell-yaml.'
+        throw "ConvertFrom-Yaml is still unavailable after installing/importing powershell-yaml $powerShellYamlVersion."
     }
 }
 

@@ -80,11 +80,12 @@ jobs:
               --generate-notes
           fi
 
-          mapfile -t template_files < <(find . -mindepth 2 -type f \
-            \( -name '*.yml' -o -name '*.yaml' \) \
-            ! -path './.github/*' \
-            ! -path './scripts/*' \
-            ! -path './dist/*' \
+          mapfile -t template_files < <(git ls-files \
+            '*.yml' '*.yaml' \
+            ':(exclude).github/**' \
+            ':(exclude)scripts/**' \
+            ':(exclude)dist/**' \
+            | awk -F/ 'NF > 1' \
             | sort)
 
           if [ "${#template_files[@]}" -eq 0 ]; then
