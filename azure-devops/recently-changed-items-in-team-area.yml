@@ -26,8 +26,7 @@ source:
 policy:
   rules:
     - id: zero-recent-items-outside-team-area
-      description: Recently changed items must stay within the configured team area.
-      condition: max_count
-      threshold: 0
+      description: Work items must not match the outside-team-area query.
+      condition: false
   severity: low
   action: warn

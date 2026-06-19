@@ -25,8 +25,7 @@ source:
 policy:
   rules:
     - id: zero-items-in-root-area
-      description: Work items should not remain at the project root area path.
-      condition: max_count
-      threshold: 0
+      description: Work items must not match the project root area query.
+      condition: false
   severity: low
   action: warn

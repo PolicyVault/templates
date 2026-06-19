@@ -40,8 +40,7 @@ source:
 policy:
   rules:
     - id: zero-active-items-missing-required-fields
-      description: No active work item should be missing required field values.
-      condition: max_count
-      threshold: 0
+      description: Work items must not match the missing required fields query.
+      condition: false
   severity: low
   action: warn

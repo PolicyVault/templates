@@ -32,8 +32,7 @@ source:
 policy:
   rules:
     - id: zero-disallowed-linked-item-types
-      description: Linked pull request work items must be in approved type groups.
-      condition: max_count
-      threshold: 0
+      description: Work items must not match the disallowed type query.
+      condition: false
   severity: high
   action: block

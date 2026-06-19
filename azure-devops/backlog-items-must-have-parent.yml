@@ -41,8 +41,7 @@ source:
 policy:
   rules:
     - id: zero-items-missing-parent
-      description: Backlog items must have a valid parent in the hierarchy.
-      condition: max_count
-      threshold: 0
+      description: Work items must not match the missing parent query.
+      condition: false
   severity: high
   action: warn

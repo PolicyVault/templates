@@ -4,8 +4,8 @@ metadata:
   name: active-backlog-items-must-have-estimates
   title: Active Backlog Items Must Have Positive Estimates
   description: >
-    Flags active requirement-category and bug-category work items that do not
-    have a valid positive estimate in Microsoft.VSTS.Scheduling.Effort.
+    Selects active requirement-category and bug-category work items that have
+    a valid positive estimate in Microsoft.VSTS.Scheduling.Effort.
   tags:
     - planning
     - estimation
@@ -24,14 +24,13 @@ source:
         OR [System.WorkItemType] IN GROUP 'Microsoft.BugCategory'
       )
       AND NOT [System.State] IN ('New', 'Removed', 'Rejected', 'Done')
-      AND [Microsoft.VSTS.Scheduling.Effort] <= 0
+      AND [Microsoft.VSTS.Scheduling.Effort] > 0
     ORDER BY [System.AreaPath]
 
 policy:
   rules:
-    - id: zero-active-items-without-estimate
-      description: Active backlog items must have an estimate greater than zero.
-      condition: max_count
-      threshold: 0
+    - id: active-items-must-be-estimated
+      description: Work items must match the estimated active items query.
+      condition: true
   severity: medium
   action: warn

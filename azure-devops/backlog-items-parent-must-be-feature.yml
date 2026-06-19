@@ -37,8 +37,7 @@ source:
 policy:
   rules:
     - id: zero-backlog-items-under-non-feature
-      description: Requirement and bug items must roll up to a Feature parent.
-      condition: max_count
-      threshold: 0
+      description: Work items must not match the invalid parent type query.
+      condition: false
   severity: medium
   action: warn

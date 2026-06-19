@@ -34,8 +34,7 @@ source:
 policy:
   rules:
     - id: zero-features-under-non-epic
-      description: Feature items must be children of Epic items.
-      condition: max_count
-      threshold: 0
+      description: Work items must not match the non-epic parent query.
+      condition: false
   severity: medium
   action: warn

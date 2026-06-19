@@ -34,8 +34,7 @@ source:
 policy:
   rules:
     - id: zero-overdue-items
-      description: No active work items should have a Target Date in the past.
-      condition: max_count
-      threshold: 0
+      description: Work items must not match the overdue active item query.
+      condition: false
   severity: medium
   action: warn

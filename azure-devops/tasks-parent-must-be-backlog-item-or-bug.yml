@@ -35,8 +35,7 @@ source:
 policy:
   rules:
     - id: zero-tasks-under-invalid-parent
-      description: Task items must be linked to requirement or bug parents.
-      condition: max_count
-      threshold: 0
+      description: Work items must not match the invalid task parent query.
+      condition: false
   severity: medium
   action: warn

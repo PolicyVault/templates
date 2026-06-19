@@ -24,8 +24,7 @@ policy:
   rules:      # One or more conditions evaluated against the query result
     - id:
       description:
-      condition:  # max_count | min_count | field_equals | field_not_empty
-      ...
+      condition:  # boolean: false => item must NOT be in query results, true => item must be in query results
   severity:   # critical | high | medium | low
   action:     # block | warn | notify
 ```
@@ -37,11 +36,13 @@ The query **must** include `SELECT` and `FROM WorkItems` at minimum.
 
 ### Policy evaluation model
 
-The policy engine evaluates templates as a **violation query**:
+The policy engine evaluates templates using a boolean rule condition:
 
-- The WIQL query should return only non-compliant work items.
-- A single `max_count` rule with `threshold: 0` is used to enforce that no violating items exist.
-- If the query returns one or more items, the policy fails based on `severity` and `action`.
+- `condition: false` means a work item **must not** be in query results.
+- `condition: true` means a work item **must** be in query results.
+- Design each template query accordingly:
+  - violation query + `condition: false`
+  - compliance query + `condition: true`
 
 ## Available templates
 

@@ -27,8 +27,7 @@ source:
 policy:
   rules:
     - id: zero-open-critical-bugs
-      description: There must be no open critical bugs at the time of evaluation.
-      condition: max_count
-      threshold: 0
+      description: Work items must not match the open critical bug query.
+      condition: false
   severity: critical
   action: block
