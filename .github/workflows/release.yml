@@ -72,11 +72,19 @@ jobs:
         run: |
           set -euo pipefail
 
-          if ! gh release view "${TAG}" >/dev/null 2>&1; then
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            is_draft=$(gh release view "${TAG}" --json isDraft --jq '.isDraft')
+            if [ "$is_draft" = "false" ]; then
+              echo "Release ${TAG} is already published. Nothing to do."
+              exit 0
+            fi
+            echo "Release ${TAG} exists as a draft (previous failed run). Retrying upload."
+          else
             gh release create "${TAG}" \
               --target "${GITHUB_SHA}" \
               --title "${TITLE}" \
-              --generate-notes
+              --generate-notes \
+              --draft
           fi
 
           mapfile -t template_files < <(git ls-files \
@@ -100,3 +108,5 @@ jobs:
           done
 
           gh release upload "${TAG}" --clobber "${asset_args[@]}"
+
+          gh release edit "${TAG}" --draft=false
