@@ -26,7 +26,7 @@ source:
       AND ([System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Reverse')
       AND (
         [Target].[System.TeamProject] = @project
-        AND NOT [Target].[System.WorkItemType] IN GROUP 'Microsoft.EpicCategory'
+        AND [Target].[System.WorkItemType] NOT IN GROUP 'Microsoft.EpicCategory'
       )
     ORDER BY [System.Id]
     MODE (MustContain)

@@ -29,7 +29,7 @@ source:
       AND ([System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Reverse')
       AND (
         [Target].[System.TeamProject] = @project
-        AND NOT [Target].[System.WorkItemType] IN GROUP 'Microsoft.FeatureCategory'
+        AND [Target].[System.WorkItemType] NOT IN GROUP 'Microsoft.FeatureCategory'
       )
     ORDER BY [System.Id]
     MODE (MustContain)

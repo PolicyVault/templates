@@ -32,7 +32,7 @@ policy:
 ### `source.query`
 
 A standard [Azure DevOps WIQL](https://learn.microsoft.com/en-us/azure/devops/boards/queries/wiql-syntax) query.  
-The query **must** include `SELECT` and `FROM WorkItems` at minimum.
+The query **must** include `SELECT` and either `FROM WorkItems` or `FROM WorkItemLinks`.
 
 ### Policy evaluation model
 
@@ -51,7 +51,7 @@ The policy engine evaluates templates using the boolean `mustBeInQueryResults` r
 | [`no-critical-bugs.yml`](no-critical-bugs.yml) | Blocks delivery when open critical bugs exist |
 | [`no-overdue-work-items.yml`](no-overdue-work-items.yml) | Warns when any active work item has passed its target date |
 | [`required-fields-on-active-items.yml`](required-fields-on-active-items.yml) | Ensures active work items have mandatory fields populated |
-| [`active-backlog-items-must-have-estimates.yml`](active-backlog-items-must-have-estimates.yml) | Flags active backlog items and bugs with missing/non-positive estimates |
+| [`active-backlog-items-must-have-estimates.yml`](active-backlog-items-must-have-estimates.yml) | Selects active backlog items and bugs that have positive estimates |
 | [`backlog-items-must-have-parent.yml`](backlog-items-must-have-parent.yml) | Flags backlog-level items that are missing a parent |
 | [`backlog-items-parent-must-be-feature.yml`](backlog-items-parent-must-be-feature.yml) | Flags requirement/bug items linked under non-feature parents |
 | [`features-parent-must-be-epic.yml`](features-parent-must-be-epic.yml) | Flags features linked under non-epic parents |

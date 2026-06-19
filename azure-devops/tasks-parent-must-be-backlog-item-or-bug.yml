@@ -26,8 +26,8 @@ source:
       AND ([System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Reverse')
       AND (
         [Target].[System.TeamProject] = @project
-        AND NOT [Target].[System.WorkItemType] IN GROUP 'Microsoft.RequirementCategory'
-        AND NOT [Target].[System.WorkItemType] IN GROUP 'Microsoft.BugCategory'
+        AND [Target].[System.WorkItemType] NOT IN GROUP 'Microsoft.RequirementCategory'
+        AND [Target].[System.WorkItemType] NOT IN GROUP 'Microsoft.BugCategory'
       )
     ORDER BY [System.Id]
     MODE (MustContain)

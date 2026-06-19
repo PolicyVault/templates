@@ -5,7 +5,8 @@ metadata:
   title: Active Backlog Items Must Have Positive Estimates
   description: >
     Selects active requirement-category and bug-category work items that have
-    a valid positive estimate in Microsoft.VSTS.Scheduling.Effort.
+    a valid positive estimate in Microsoft.VSTS.Scheduling.Effort, including
+    only items with Effort > 0.
   tags:
     - planning
     - estimation
@@ -13,7 +14,7 @@ metadata:
 
 source:
   platform: azure-devops
-  queryName: Policy - Active Items Missing Estimates
+  queryName: Policy - Active Items With Estimates
   query: |
     SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
            [System.State], [Microsoft.VSTS.Scheduling.Effort], [System.AreaPath], [System.Tags]
@@ -23,7 +24,7 @@ source:
         [System.WorkItemType] IN GROUP 'Microsoft.RequirementCategory'
         OR [System.WorkItemType] IN GROUP 'Microsoft.BugCategory'
       )
-      AND NOT [System.State] IN ('New', 'Removed', 'Rejected', 'Done')
+      AND [System.State] NOT IN ('New', 'Removed', 'Rejected', 'Done')
       AND [Microsoft.VSTS.Scheduling.Effort] > 0
     ORDER BY [System.AreaPath]
 

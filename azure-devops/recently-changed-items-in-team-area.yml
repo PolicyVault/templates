@@ -5,8 +5,8 @@ metadata:
   title: Recently Changed Items In Team Area
   description: >
     Flags recently changed work items that are outside a specific team area.
-    Replace TEAM_AREA_DESCRIPTOR with your team descriptor in the
-    @teamAreas('[Project]\Team <id:GUID>') format.
+    Replace TEAM_AREA_DESCRIPTOR with a full WIQL area expression, for example
+    @teamAreas('[Project]\Team <id:GUID>').
   tags:
     - team-scope
     - area-path
@@ -21,7 +21,7 @@ source:
     FROM WorkItems
     WHERE [System.TeamProject] = @project
       AND [System.ChangedDate] > @today - 60
-      AND NOT [System.AreaPath] UNDER @teamAreas('TEAM_AREA_DESCRIPTOR')
+      AND NOT [System.AreaPath] UNDER TEAM_AREA_DESCRIPTOR
 
 policy:
   rules:

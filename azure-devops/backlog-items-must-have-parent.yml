@@ -27,7 +27,7 @@ source:
             OR [Source].[System.WorkItemType] IN GROUP 'Microsoft.RequirementCategory'
             OR [Source].[System.WorkItemType] IN GROUP 'Microsoft.TaskCategory'
           )
-          AND NOT [Source].[System.State] IN ('Removed', 'Rejected')
+          AND [Source].[System.State] NOT IN ('Removed', 'Rejected')
         )
       )
       AND ([System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Reverse')
