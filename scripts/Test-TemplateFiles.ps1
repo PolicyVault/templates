@@ -129,10 +129,14 @@ function Ensure-ConvertFromYaml {
         Install-Module -Name powershell-yaml -Scope CurrentUser -Force -ErrorAction Stop
     }
     catch {
-        return
+        throw "ConvertFrom-Yaml is unavailable and powershell-yaml could not be installed. $($_.Exception.Message)"
     }
 
-    Import-Module powershell-yaml -ErrorAction SilentlyContinue
+    Import-Module powershell-yaml -ErrorAction Stop
+
+    if (-not (Get-Command -Name ConvertFrom-Yaml -ErrorAction SilentlyContinue)) {
+        throw 'ConvertFrom-Yaml is still unavailable after installing/importing powershell-yaml.'
+    }
 }
 
 function ConvertFrom-TemplateYaml {
@@ -143,37 +147,7 @@ function ConvertFrom-TemplateYaml {
 
     Ensure-ConvertFromYaml
 
-    if (Get-Command -Name ConvertFrom-Yaml -ErrorAction SilentlyContinue) {
-        return Get-Content -LiteralPath $FilePath -Raw | ConvertFrom-Yaml
-    }
-
-    $rubyCommand = @'
-require "json"
-require "yaml"
-
-path = ENV.fetch("TEMPLATE_FILE")
-content = File.read(path)
-document = YAML.safe_load(content, permitted_classes: [], permitted_symbols: [], aliases: false)
-puts JSON.generate(document)
-'@
-
-    $previousTemplateFile = $env:TEMPLATE_FILE
-    try {
-        $env:TEMPLATE_FILE = $FilePath
-        $output = & ruby -e $rubyCommand 2>&1
-        if ($LASTEXITCODE -ne 0) {
-            throw ($output -join [Environment]::NewLine)
-        }
-    }
-    finally {
-        $env:TEMPLATE_FILE = $previousTemplateFile
-    }
-
-    if ([string]::IsNullOrWhiteSpace(($output -join ''))) {
-        return $null
-    }
-
-    return ($output -join [Environment]::NewLine) | ConvertFrom-Json
+    return Get-Content -LiteralPath $FilePath -Raw | ConvertFrom-Yaml
 }
 
 function Test-InvalidWiqlCharacter {
