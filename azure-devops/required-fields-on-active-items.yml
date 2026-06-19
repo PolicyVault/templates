@@ -6,7 +6,8 @@ metadata:
   description: >
     Ensures that all active work items have the mandatory fields populated:
     Assigned To, Area Path, and Iteration Path. Incomplete metadata leads
-    to inaccurate reporting and broken sprint planning.
+    to inaccurate reporting and broken sprint planning. Uses work item type
+    categories to stay process-template agnostic.
   tags:
     - hygiene
     - metadata
@@ -21,7 +22,12 @@ source:
            [System.AssignedTo], [System.AreaPath], [System.IterationPath]
     FROM WorkItems
     WHERE [System.TeamProject] = @project
-      AND [System.WorkItemType] IN ('User Story', 'Task', 'Bug', 'Feature')
+      AND (
+        [System.WorkItemType] IN GROUP 'Microsoft.RequirementCategory'
+        OR [System.WorkItemType] IN GROUP 'Microsoft.TaskCategory'
+        OR [System.WorkItemType] IN GROUP 'Microsoft.BugCategory'
+        OR [System.WorkItemType] IN GROUP 'Microsoft.FeatureCategory'
+      )
       AND [System.State] IN ('Active', 'In Progress', 'Committed')
       AND (
         [System.AssignedTo] = ''

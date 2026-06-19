@@ -4,7 +4,7 @@ metadata:
   name: no-critical-bugs
   title: No Open Critical Bugs
   description: >
-    Prevents a release from proceeding when there are open work items of type Bug
+    Prevents a release from proceeding when there are open bug-category work items
     with severity Critical or 1 - Critical that are not yet resolved or closed.
     Use this policy as a quality gate in your release pipeline.
   tags:
@@ -18,7 +18,7 @@ source:
     SELECT [System.Id], [System.Title], [System.State], [Microsoft.VSTS.Common.Severity]
     FROM WorkItems
     WHERE [System.TeamProject] = @project
-      AND [System.WorkItemType] = 'Bug'
+      AND [System.WorkItemType] IN GROUP 'Microsoft.BugCategory'
       AND [Microsoft.VSTS.Common.Severity] IN ('1 - Critical', 'Critical')
       AND [System.State] NOT IN ('Resolved', 'Closed')
     ORDER BY [System.CreatedDate] DESC

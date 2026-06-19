@@ -4,8 +4,8 @@ metadata:
   name: active-backlog-items-must-have-estimates
   title: Active Backlog Items Must Have Positive Estimates
   description: >
-    Flags active Product Backlog Items and Bugs that do not have a valid
-    positive estimate in Microsoft.VSTS.Scheduling.Effort.
+    Flags active requirement-category and bug-category work items that do not
+    have a valid positive estimate in Microsoft.VSTS.Scheduling.Effort.
   tags:
     - planning
     - estimation
@@ -18,7 +18,10 @@ source:
            [System.State], [Microsoft.VSTS.Scheduling.Effort], [System.AreaPath], [System.Tags]
     FROM WorkItems
     WHERE [System.TeamProject] = @project
-      AND [System.WorkItemType] IN ('Product Backlog Item', 'Bug')
+      AND (
+        [System.WorkItemType] IN GROUP 'Microsoft.RequirementCategory'
+        OR [System.WorkItemType] IN GROUP 'Microsoft.BugCategory'
+      )
       AND NOT [System.State] IN ('New', 'Removed', 'Rejected', 'Done')
       AND [Microsoft.VSTS.Scheduling.Effort] <= 0
     ORDER BY [System.AreaPath]
@@ -31,4 +34,3 @@ policy:
       threshold: 0
   severity: medium
   action: warn
-
