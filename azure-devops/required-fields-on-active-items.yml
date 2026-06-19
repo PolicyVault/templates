@@ -6,7 +6,8 @@ metadata:
   description: >
     Ensures that all active work items have the mandatory fields populated:
     Assigned To, Area Path, and Iteration Path. Incomplete metadata leads
-    to inaccurate reporting and broken sprint planning.
+    to inaccurate reporting and broken sprint planning. Uses work item type
+    categories to stay process-template agnostic.
   tags:
     - hygiene
     - metadata
@@ -14,6 +15,7 @@ metadata:
 
 source:
   platform: azure-devops
+  queryName: Policy - Active Items Missing Required Fields
   # The query intentionally selects items that are MISSING at least one required
   # field so that a max_count: 0 rule catches them immediately.
   query: |
@@ -21,7 +23,12 @@ source:
            [System.AssignedTo], [System.AreaPath], [System.IterationPath]
     FROM WorkItems
     WHERE [System.TeamProject] = @project
-      AND [System.WorkItemType] IN ('User Story', 'Task', 'Bug', 'Feature')
+      AND (
+        [System.WorkItemType] IN GROUP 'Microsoft.RequirementCategory'
+        OR [System.WorkItemType] IN GROUP 'Microsoft.TaskCategory'
+        OR [System.WorkItemType] IN GROUP 'Microsoft.BugCategory'
+        OR [System.WorkItemType] IN GROUP 'Microsoft.FeatureCategory'
+      )
       AND [System.State] IN ('Active', 'In Progress', 'Committed')
       AND (
         [System.AssignedTo] = ''
@@ -32,19 +39,8 @@ source:
 
 policy:
   rules:
-    - id: assigned-to-not-empty
-      description: Every active work item must be assigned to a team member.
-      condition: field_not_empty
-      field: System.AssignedTo
-
-    - id: area-path-set
-      description: Area Path must be set to a value other than the project root.
-      condition: field_not_empty
-      field: System.AreaPath
-
-    - id: iteration-path-set
-      description: Iteration Path must be set to a value other than the project root.
-      condition: field_not_empty
-      field: System.IterationPath
+    - id: zero-active-items-missing-required-fields
+      description: Work items must not match the missing required fields query.
+      mustBeInQueryResults: false
   severity: low
   action: warn

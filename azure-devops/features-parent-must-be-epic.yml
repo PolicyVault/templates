@@ -1,0 +1,40 @@
+apiVersion: policyvault.io/v1
+kind: WorkItemQueryPolicy
+metadata:
+  name: features-parent-must-be-epic
+  title: Features Parent Must Be Epic
+  description: >
+    Ensures Features are linked under Epic-level work items to preserve a
+    consistent portfolio hierarchy.
+  tags:
+    - hierarchy
+    - features
+    - portfolio
+
+source:
+  platform: azure-devops
+  queryName: Policy - Features With Non-Epic Parent
+  query: |
+    SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
+           [System.State], [System.AreaPath], [System.Tags]
+    FROM WorkItemLinks
+    WHERE
+      (
+        [Source].[System.TeamProject] = @project
+        AND [Source].[System.WorkItemType] IN GROUP 'Microsoft.FeatureCategory'
+      )
+      AND ([System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Reverse')
+      AND (
+        [Target].[System.TeamProject] = @project
+        AND [Target].[System.WorkItemType] NOT IN GROUP 'Microsoft.EpicCategory'
+      )
+    ORDER BY [System.Id]
+    MODE (MustContain)
+
+policy:
+  rules:
+    - id: zero-features-under-non-epic
+      description: Work items must not match the non-epic parent query.
+      mustBeInQueryResults: false
+  severity: medium
+  action: warn

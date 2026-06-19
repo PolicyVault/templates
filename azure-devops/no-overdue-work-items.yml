@@ -6,7 +6,8 @@ metadata:
   description: >
     Warns when any active (In Progress / Active / Committed) work item has a
     Target Date that is in the past. Helps teams stay aware of schedule drift
-    before it becomes a delivery risk.
+    before it becomes a delivery risk. Uses work item type categories to stay
+    process-template agnostic.
   tags:
     - schedule
     - sla
@@ -14,12 +15,18 @@ metadata:
 
 source:
   platform: azure-devops
+  queryName: Policy - Overdue Active Work Items
   query: |
     SELECT [System.Id], [System.Title], [System.State], [Microsoft.VSTS.Scheduling.TargetDate],
            [System.AssignedTo]
     FROM WorkItems
     WHERE [System.TeamProject] = @project
-      AND [System.WorkItemType] IN ('User Story', 'Task', 'Bug', 'Feature')
+      AND (
+        [System.WorkItemType] IN GROUP 'Microsoft.RequirementCategory'
+        OR [System.WorkItemType] IN GROUP 'Microsoft.TaskCategory'
+        OR [System.WorkItemType] IN GROUP 'Microsoft.BugCategory'
+        OR [System.WorkItemType] IN GROUP 'Microsoft.FeatureCategory'
+      )
       AND [System.State] IN ('Active', 'In Progress', 'Committed')
       AND [Microsoft.VSTS.Scheduling.TargetDate] < @today
     ORDER BY [Microsoft.VSTS.Scheduling.TargetDate] ASC
@@ -27,8 +34,7 @@ source:
 policy:
   rules:
     - id: zero-overdue-items
-      description: No active work items should have a Target Date in the past.
-      condition: max_count
-      threshold: 0
+      description: Work items must not match the overdue active item query.
+      mustBeInQueryResults: false
   severity: medium
   action: warn

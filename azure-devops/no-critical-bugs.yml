@@ -4,7 +4,7 @@ metadata:
   name: no-critical-bugs
   title: No Open Critical Bugs
   description: >
-    Prevents a release from proceeding when there are open work items of type Bug
+    Prevents a release from proceeding when there are open bug-category work items
     with severity Critical or 1 - Critical that are not yet resolved or closed.
     Use this policy as a quality gate in your release pipeline.
   tags:
@@ -14,11 +14,12 @@ metadata:
 
 source:
   platform: azure-devops
+  queryName: Policy - No Open Critical Bugs
   query: |
     SELECT [System.Id], [System.Title], [System.State], [Microsoft.VSTS.Common.Severity]
     FROM WorkItems
     WHERE [System.TeamProject] = @project
-      AND [System.WorkItemType] = 'Bug'
+      AND [System.WorkItemType] IN GROUP 'Microsoft.BugCategory'
       AND [Microsoft.VSTS.Common.Severity] IN ('1 - Critical', 'Critical')
       AND [System.State] NOT IN ('Resolved', 'Closed')
     ORDER BY [System.CreatedDate] DESC
@@ -26,8 +27,7 @@ source:
 policy:
   rules:
     - id: zero-open-critical-bugs
-      description: There must be no open critical bugs at the time of evaluation.
-      condition: max_count
-      threshold: 0
+      description: Work items must not match the open critical bug query.
+      mustBeInQueryResults: false
   severity: critical
   action: block

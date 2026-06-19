@@ -1,0 +1,41 @@
+apiVersion: policyvault.io/v1
+kind: WorkItemQueryPolicy
+metadata:
+  name: tasks-parent-must-be-backlog-item-or-bug
+  title: Tasks Parent Must Be Backlog Item or Bug
+  description: >
+    Ensures task-level items are linked to requirement or bug parents, preventing
+    orphaned or mis-leveled execution items.
+  tags:
+    - hierarchy
+    - tasks
+    - execution
+
+source:
+  platform: azure-devops
+  queryName: Policy - Tasks With Invalid Parent Type
+  query: |
+    SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
+           [System.State], [System.AreaPath], [System.Tags]
+    FROM WorkItemLinks
+    WHERE
+      (
+        [Source].[System.TeamProject] = @project
+        AND [Source].[System.WorkItemType] IN GROUP 'Microsoft.TaskCategory'
+      )
+      AND ([System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Reverse')
+      AND (
+        [Target].[System.TeamProject] = @project
+        AND [Target].[System.WorkItemType] NOT IN GROUP 'Microsoft.RequirementCategory'
+        AND [Target].[System.WorkItemType] NOT IN GROUP 'Microsoft.BugCategory'
+      )
+    ORDER BY [System.Id]
+    MODE (MustContain)
+
+policy:
+  rules:
+    - id: zero-tasks-under-invalid-parent
+      description: Work items must not match the invalid task parent query.
+      mustBeInQueryResults: false
+  severity: medium
+  action: warn
