@@ -1,0 +1,48 @@
+apiVersion: policyvault.io/v1
+kind: WorkItemQueryPolicy
+metadata:
+  name: backlog-items-must-have-parent
+  title: Backlog Items Must Have a Parent
+  description: >
+    Ensures backlog-level work items are linked into the hierarchy. Flags
+    requirements, features, and tasks that do not have a parent item.
+  tags:
+    - hierarchy
+    - backlog
+    - work-items
+
+source:
+  platform: azure-devops
+  query: |
+    SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
+           [System.State], [System.AreaPath], [System.Tags]
+    FROM WorkItemLinks
+    WHERE
+      (
+        [Source].[System.TeamProject] = @project
+        AND (
+          (
+            [Source].[System.WorkItemType] IN GROUP 'Microsoft.FeatureCategory'
+            OR [Source].[System.WorkItemType] IN GROUP 'Microsoft.RequirementCategory'
+            OR [Source].[System.WorkItemType] IN GROUP 'Microsoft.TaskCategory'
+          )
+          AND NOT [Source].[System.State] IN ('Removed', 'Rejected')
+        )
+      )
+      AND ([System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Reverse')
+      AND (
+        [Target].[System.TeamProject] = @project
+        AND [Target].[System.WorkItemType] <> ''
+      )
+    ORDER BY [System.AreaPath]
+    MODE (DoesNotContain)
+
+policy:
+  rules:
+    - id: zero-items-missing-parent
+      description: Backlog items must have a valid parent in the hierarchy.
+      condition: max_count
+      threshold: 0
+  severity: high
+  action: warn
+

@@ -1,0 +1,44 @@
+apiVersion: policyvault.io/v1
+kind: WorkItemQueryPolicy
+metadata:
+  name: backlog-items-parent-must-be-feature
+  title: Backlog Items Parent Must Be Feature
+  description: >
+    Ensures requirements and bugs are attached to Feature-level parents instead
+    of being linked under unrelated hierarchy levels.
+  tags:
+    - hierarchy
+    - backlog
+    - bugs
+
+source:
+  platform: azure-devops
+  query: |
+    SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
+           [System.State], [System.AreaPath], [System.Tags]
+    FROM WorkItemLinks
+    WHERE
+      (
+        [Source].[System.TeamProject] = @project
+        AND (
+          [Source].[System.WorkItemType] IN GROUP 'Microsoft.RequirementCategory'
+          OR [Source].[System.WorkItemType] IN GROUP 'Microsoft.BugCategory'
+        )
+      )
+      AND ([System.Links.LinkType] = 'System.LinkTypes.Hierarchy-Reverse')
+      AND (
+        [Target].[System.TeamProject] = @project
+        AND NOT [Target].[System.WorkItemType] IN GROUP 'Microsoft.FeatureCategory'
+      )
+    ORDER BY [System.Id]
+    MODE (MustContain)
+
+policy:
+  rules:
+    - id: zero-backlog-items-under-non-feature
+      description: Requirement and bug items must roll up to a Feature parent.
+      condition: max_count
+      threshold: 0
+  severity: medium
+  action: warn
+

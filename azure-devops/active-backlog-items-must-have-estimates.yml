@@ -1,0 +1,34 @@
+apiVersion: policyvault.io/v1
+kind: WorkItemQueryPolicy
+metadata:
+  name: active-backlog-items-must-have-estimates
+  title: Active Backlog Items Must Have Positive Estimates
+  description: >
+    Flags active Product Backlog Items and Bugs that do not have a valid
+    positive estimate in Microsoft.VSTS.Scheduling.Effort.
+  tags:
+    - planning
+    - estimation
+    - backlog
+
+source:
+  platform: azure-devops
+  query: |
+    SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
+           [System.State], [Microsoft.VSTS.Scheduling.Effort], [System.AreaPath], [System.Tags]
+    FROM WorkItems
+    WHERE [System.TeamProject] = @project
+      AND [System.WorkItemType] IN ('Product Backlog Item', 'Bug')
+      AND NOT [System.State] IN ('New', 'Removed', 'Rejected', 'Done')
+      AND [Microsoft.VSTS.Scheduling.Effort] <= 0
+    ORDER BY [System.AreaPath]
+
+policy:
+  rules:
+    - id: zero-active-items-without-estimate
+      description: Active backlog items must have an estimate greater than zero.
+      condition: max_count
+      threshold: 0
+  severity: medium
+  action: warn
+

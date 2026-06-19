@@ -1,0 +1,39 @@
+apiVersion: policyvault.io/v1
+kind: WorkItemQueryPolicy
+metadata:
+  name: pull-request-linked-items-must-use-allowed-types
+  title: Pull Request Linked Items Must Use Allowed Types
+  description: >
+    Flags recently active work items outside the approved type groups
+    (Bug, Feature, Requirement). Use this policy in pull request contexts where
+    evaluation scope is limited to linked work items.
+  tags:
+    - pull-request
+    - work-items
+    - governance
+
+source:
+  platform: azure-devops
+  query: |
+    SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
+           [System.State], [System.AreaPath], [Microsoft.VSTS.Scheduling.Effort], [System.Tags]
+    FROM WorkItems
+    WHERE [System.TeamProject] = @project
+      AND [System.State] IN ('Committed', 'Done', 'In Progress')
+      AND [System.ChangedDate] > @today - 365
+      AND NOT (
+        [System.WorkItemType] IN GROUP 'Microsoft.BugCategory'
+        OR [System.WorkItemType] IN GROUP 'Microsoft.FeatureCategory'
+        OR [System.WorkItemType] IN GROUP 'Microsoft.RequirementCategory'
+      )
+    ORDER BY [System.WorkItemType], [System.ChangedDate] DESC
+
+policy:
+  rules:
+    - id: zero-disallowed-linked-item-types
+      description: Linked pull request work items must be in approved type groups.
+      condition: max_count
+      threshold: 0
+  severity: high
+  action: block
+

@@ -50,6 +50,14 @@ The query **must** include `SELECT` and `FROM WorkItems` at minimum.
 | [`no-critical-bugs.yml`](no-critical-bugs.yml) | Blocks delivery when open critical bugs exist |
 | [`no-overdue-work-items.yml`](no-overdue-work-items.yml) | Warns when any active work item has passed its target date |
 | [`required-fields-on-active-items.yml`](required-fields-on-active-items.yml) | Ensures active work items have mandatory fields populated |
+| [`active-backlog-items-must-have-estimates.yml`](active-backlog-items-must-have-estimates.yml) | Flags active backlog items and bugs with missing/non-positive estimates |
+| [`backlog-items-must-have-parent.yml`](backlog-items-must-have-parent.yml) | Flags backlog-level items that are missing a parent |
+| [`backlog-items-parent-must-be-feature.yml`](backlog-items-parent-must-be-feature.yml) | Flags requirement/bug items linked under non-feature parents |
+| [`features-parent-must-be-epic.yml`](features-parent-must-be-epic.yml) | Flags features linked under non-epic parents |
+| [`pull-request-linked-items-must-use-allowed-types.yml`](pull-request-linked-items-must-use-allowed-types.yml) | Blocks when linked PR work items are outside approved type groups |
+| [`recently-changed-items-in-team-area.yml`](recently-changed-items-in-team-area.yml) | Team-area scoped recent changes template (requires team descriptor customization) |
+| [`tasks-parent-must-be-backlog-item-or-bug.yml`](tasks-parent-must-be-backlog-item-or-bug.yml) | Flags task items linked under invalid parent types |
+| [`work-items-must-not-use-project-root-area.yml`](work-items-must-not-use-project-root-area.yml) | Flags work items that remain on the project root area path |
 
 ## Adding a new template
 

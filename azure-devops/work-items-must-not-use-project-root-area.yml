@@ -1,0 +1,32 @@
+apiVersion: policyvault.io/v1
+kind: WorkItemQueryPolicy
+metadata:
+  name: work-items-must-not-use-project-root-area
+  title: Work Items Must Not Use Project Root Area
+  description: >
+    Flags work items assigned directly to the project root Area Path. Root-level
+    placement makes ownership and reporting ambiguous.
+  tags:
+    - hygiene
+    - area-path
+    - governance
+
+source:
+  platform: azure-devops
+  query: |
+    SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
+           [System.State], [System.Tags], [System.AreaPath]
+    FROM WorkItems
+    WHERE [System.TeamProject] = @project
+      AND [System.WorkItemType] <> ''
+      AND [System.AreaPath] = @project
+
+policy:
+  rules:
+    - id: zero-items-in-root-area
+      description: Work items should not remain at the project root area path.
+      condition: max_count
+      threshold: 0
+  severity: low
+  action: warn
+
