@@ -1,0 +1,33 @@
+name: Documentation improvement
+description: Report a problem or improvement for repository docs and guidance.
+title: "[Docs]: "
+labels:
+  - documentation
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form for README updates, CONTRIBUTING guidance, SECURITY policy clarifications, or other documentation fixes.
+  - type: input
+    id: page
+    attributes:
+      label: Affected document
+      description: Which page or file should be updated?
+      placeholder: README.md
+    validations:
+      required: true
+  - type: textarea
+    id: issue
+    attributes:
+      label: What needs to change?
+      description: Describe the missing, incorrect, or unclear information.
+      placeholder: The README should mention that GitHub issue templates exist.
+    validations:
+      required: true
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested wording or change
+      description: If you already know the fix, include the text or structure you want.
+    validations:
+      required: false

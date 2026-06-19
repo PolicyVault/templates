@@ -1,0 +1,66 @@
+name: Bug report
+description: Report a broken template or incorrect policy behavior.
+title: "[Bug]: "
+labels:
+  - bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a problem.
+
+        Use this form for broken YAML, incorrect policy behavior, or runtime assumptions that make a template fail.
+  - type: input
+    id: template-file
+    attributes:
+      label: Template file
+      description: Which template or document is affected?
+      placeholder: azure-devops/no-critical-bugs.yml
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: Which issue-tracking platform is affected?
+      options:
+        - Azure DevOps
+        - GitHub Issues
+        - Atlassian Jira
+        - Documentation
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Describe the issue and what you expected instead.
+      placeholder: The policy allows critical bugs to pass even when a matching work item exists.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Include sample query, configuration, or repository path when relevant.
+      placeholder: |
+        1. Open...
+        2. Apply...
+        3. Observe...
+    validations:
+      required: false
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
+      description: Add screenshots, error messages, or links that help explain the issue.
+      placeholder: Error output, screenshots, related issue links, etc.
+    validations:
+      required: false
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I have checked that this is not a security vulnerability.
+          required: true

@@ -1,0 +1,55 @@
+name: Template request
+description: Request a new policy template or an enhancement to an existing one.
+title: "[Template request]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form to request a new policy template, a new platform, or a meaningful enhancement to an existing template.
+  - type: dropdown
+    id: request-type
+    attributes:
+      label: Request type
+      options:
+        - New policy template
+        - New platform support
+        - Enhancement to an existing template
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Target platform
+      description: Which issue-tracking platform should this cover?
+      options:
+        - Azure DevOps
+        - GitHub Issues
+        - Atlassian Jira
+    validations:
+      required: true
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use case
+      description: What policy outcome do you want to enforce?
+      placeholder: Prevent work items from moving to Done unless a required field is populated.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and query idea
+      description: Share any sample query, filtering logic, or target files if you have them.
+      placeholder: WIQL/JQL/search query, affected folders, or example conditions.
+    validations:
+      required: false
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: What should be true when this request is complete?
+      placeholder: The repository includes a ready-to-copy template with clear metadata and documented usage.
+    validations:
+      required: true
