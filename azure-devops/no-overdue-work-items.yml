@@ -1,0 +1,34 @@
+apiVersion: policyvault.io/v1
+kind: WorkItemQueryPolicy
+metadata:
+  name: no-overdue-work-items
+  title: No Overdue Active Work Items
+  description: >
+    Warns when any active (In Progress / Active / Committed) work item has a
+    Target Date that is in the past. Helps teams stay aware of schedule drift
+    before it becomes a delivery risk.
+  tags:
+    - schedule
+    - sla
+    - work-items
+
+source:
+  platform: azure-devops
+  query: |
+    SELECT [System.Id], [System.Title], [System.State], [Microsoft.VSTS.Scheduling.TargetDate],
+           [System.AssignedTo]
+    FROM WorkItems
+    WHERE [System.TeamProject] = @project
+      AND [System.WorkItemType] IN ('User Story', 'Task', 'Bug', 'Feature')
+      AND [System.State] IN ('Active', 'In Progress', 'Committed')
+      AND [Microsoft.VSTS.Scheduling.TargetDate] < @today
+    ORDER BY [Microsoft.VSTS.Scheduling.TargetDate] ASC
+
+policy:
+  rules:
+    - id: zero-overdue-items
+      description: No active work items should have a Target Date in the past.
+      condition: max_count
+      threshold: 0
+  severity: medium
+  action: warn
