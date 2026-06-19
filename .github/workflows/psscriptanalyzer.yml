@@ -1,15 +1,27 @@
-name: PSScriptAnalyzer
+name: PowerShell code scan
 
 on:
   push:
+    paths:
+      - "**/*.ps1"
+      - "**/*.psm1"
+      - "**/*.psd1"
+      - ".github/workflows/psscriptanalyzer.yml"
+      - "PSScriptAnalyzerSettings.psd1"
   pull_request:
+    paths:
+      - "**/*.ps1"
+      - "**/*.psm1"
+      - "**/*.psd1"
+      - ".github/workflows/psscriptanalyzer.yml"
+      - "PSScriptAnalyzerSettings.psd1"
 
 permissions:
   contents: read
 
 jobs:
   analyze:
-    name: PSScriptAnalyzer
+    name: Analyze
     runs-on: ubuntu-latest
     permissions:
       actions: read
@@ -20,7 +32,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Run PSScriptAnalyzer
+      - name: Analyze PowerShell scripts
         uses: microsoft/psscriptanalyzer-action@6b2948b1944407914a58661c49941824d149734f
         with:
           path: ./
@@ -28,8 +40,8 @@ jobs:
           settings: ./PSScriptAnalyzerSettings.psd1
           output: results.sarif
 
-      - name: Upload SARIF results
-        if: always() && hashFiles('results.sarif') != ''
+      - name: Publish results to GitHub code scanning
+        if: always() && hashFiles('results.sarif') != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: results.sarif
