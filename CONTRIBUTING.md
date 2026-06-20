@@ -67,7 +67,7 @@ Branch names must follow this pattern:
    - **Why** the change is needed.
    - Any relevant **issue numbers** (e.g. `Closes #42`).
 4. Make sure all automated checks pass before requesting a review.
-   - PowerShell changes must pass the required GitHub code scanning results produced by `PSScriptAnalyzer`.
+   - PowerShell changes must pass the required GitHub code scanning results produced by `PSScriptAnalyzer` (from centralized `.github` workflows).
 5. Request a review from at least one maintainer.
 
 ---
