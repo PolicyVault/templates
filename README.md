@@ -28,7 +28,7 @@ Each template is designed to be copied, customised, and then imported into a Pol
 
 ## Release automation
 
-GitHub Actions validates the repository's template YAML files and performs basic WIQL sanity checks on every pull request and push to `main`. Pushes to `main` also calculate a release version with GitVersion, tag releases from `majorMinorPatch` so the patch number advances on each new release, create a GitHub release for the tagged repository state, and upload each template YAML file as an explicit release asset for direct programmatic download.
+GitHub Actions validates the repository's template YAML files and performs basic WIQL sanity checks on every pull request and push to `main`. Pushes to `main` also calculate a release version with GitVersion, derive the release tag from GitVersion's `majorMinorPatch` output so the patch number advances on each new release, create a GitHub release for the tagged repository state, and upload each template YAML file as an explicit release asset for direct programmatic download.
 
 ## Contributing
 
