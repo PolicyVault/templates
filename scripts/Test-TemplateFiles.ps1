@@ -5,7 +5,8 @@ Validates PolicyVault template YAML files and Azure DevOps WIQL sanity rules.
 .DESCRIPTION
 Recursively scans the supplied path for YAML template files, validates that each
 file parses as YAML, and applies lightweight WIQL checks to Azure DevOps
-templates. The WIQL checks verify required clauses, balanced brackets and
+templates. Azure DevOps templates are also validated against the repository
+JSON schema. The WIQL checks verify required clauses, balanced brackets and
 parentheses, unmatched single quotes, and unsupported control characters.
 
 .PARAMETER Path
@@ -29,9 +30,18 @@ $ErrorActionPreference = 'Stop'
 
 $validationRoot = [IO.Path]::GetFullPath((Resolve-Path -LiteralPath $Path).Path)
 $repositoryRoot = Split-Path -Path $PSScriptRoot -Parent
+$templateSchemaPath = Join-Path -Path $repositoryRoot -ChildPath 'schemas/template-catalog-entry.schema.json'
 $ignoredTopLevelDirectories = @('.git', '.github', 'dist', 'scripts')
 $powerShellYamlVersion = '0.4.12'
 $supportedExtensions = @('.yml', '.yaml')
+
+if (-not (Test-Path -LiteralPath $templateSchemaPath -PathType Leaf)) {
+    throw "Template schema file was not found at '$templateSchemaPath'."
+}
+
+if (-not (Get-Command -Name Test-Json -ErrorAction SilentlyContinue)) {
+    throw 'Test-Json is unavailable in this PowerShell runtime. PowerShell 7+ is required for schema validation.'
+}
 
 function Get-RelativePath {
     param(
@@ -282,12 +292,36 @@ if ($files.Count -eq 0) {
 }
 
 foreach ($file in $files) {
+    $relativePath = Get-RelativePath -BasePath $repositoryRoot -TargetPath $file
+    $isAzureDevOpsTemplateFile = $relativePath -match '^azure-devops[\\/].+\.ya?ml$'
+
     try {
         $document = ConvertFrom-TemplateYaml -FilePath $file
     }
     catch {
-        $errors.Add("$(Get-RelativePath -BasePath $repositoryRoot -TargetPath $file): invalid YAML syntax ($($_.Exception.Message))")
+        $errors.Add("${relativePath}: invalid YAML syntax ($($_.Exception.Message))")
         continue
+    }
+
+    if ($null -eq $document -and $isAzureDevOpsTemplateFile) {
+        $errors.Add("${relativePath}: template document must not be empty")
+        continue
+    }
+
+    if ($isAzureDevOpsTemplateFile) {
+        try {
+            $documentJson = $document | ConvertTo-Json -Depth 100
+            $schemaValidationResult = $documentJson | Test-Json -SchemaFile $templateSchemaPath -ErrorAction Stop
+        }
+        catch {
+            $errors.Add("${relativePath}: schema validation failed ($($_.Exception.Message))")
+            continue
+        }
+
+        if (-not $schemaValidationResult) {
+            $errors.Add("${relativePath}: does not conform to template schema '$templateSchemaPath'")
+            continue
+        }
     }
 
     if ($null -eq $document) {
@@ -302,12 +336,12 @@ foreach ($file in $files) {
 
     $query = Get-PropertyValue -Object $source -Name 'query'
     if ([string]::IsNullOrWhiteSpace($query)) {
-        $errors.Add("$(Get-RelativePath -BasePath $repositoryRoot -TargetPath $file): source.query must be a non-empty WIQL string")
+        $errors.Add("${relativePath}: source.query must be a non-empty WIQL string")
         continue
     }
 
     foreach ($message in (Get-WiqlValidationErrors -Query $query)) {
-        $errors.Add("$(Get-RelativePath -BasePath $repositoryRoot -TargetPath $file): $message")
+        $errors.Add("${relativePath}: $message")
     }
 }
 

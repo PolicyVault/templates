@@ -19,6 +19,19 @@ Policies in this repository are based on **work item queries** — they use the 
 
 Each template is designed to be copied, customised, and then imported into a PolicyVault instance.
 
+## YAML schema and IntelliSense
+
+This repository includes a local JSON schema for template entries:
+
+- Schema file: `schemas/template-catalog-entry.schema.json`
+- VS Code workspace mapping: `.vscode/settings.json` (`yaml.schemas`)
+
+For tools that use `yaml-language-server` outside VS Code workspace settings, templates include a file-level schema directive:
+
+```yaml
+# yaml-language-server: $schema=../schemas/template-catalog-entry.schema.json
+```
+
 ## Usage
 
 1. Browse the platform folder that matches your issue-tracking tool.
@@ -28,7 +41,7 @@ Each template is designed to be copied, customised, and then imported into a Pol
 
 ## Release automation
 
-GitHub Actions validates the repository's template YAML files and performs basic WIQL sanity checks on every pull request and push to `main`. Pushes to `main` also calculate a release version with GitVersion, derive the release tag from GitVersion's `majorMinorPatch` output so the patch number advances on each new release, create a GitHub release for the tagged repository state, and upload each template YAML file as an explicit release asset for direct programmatic download.
+GitHub Actions lints YAML files with `yamllint` and validates template schema/WIQL rules on every pull request and push to `main`. Pushes to `main` also calculate a release version with GitVersion, derive the release tag from GitVersion's `majorMinorPatch` output so the patch number advances on each new release, create a GitHub release for the tagged repository state, and upload each template YAML file as an explicit release asset for direct programmatic download.
 
 ## Contributing
 
