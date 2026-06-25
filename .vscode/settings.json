@@ -1,0 +1,8 @@
+{
+  "yaml.schemas": {
+    "./schemas/template-catalog-entry.schema.json": "azure-devops/*.yml"
+  },
+  "cSpell.words": [
+    "WIQL"
+  ]
+}

@@ -34,8 +34,27 @@ jobs:
         id: gitversion
         uses: gittools/actions/gitversion/execute@bc6623af8fc07d5a8903052dd46da33403eec8e8 # v4.5.0
 
+  yaml_lint:
+    name: Lint YAML files
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v4.1.1
+
+      - name: Set up Python
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: '3.x'
+
+      - name: Install yamllint
+        run: python -m pip install --upgrade pip yamllint
+
+      - name: Run yamllint
+        run: yamllint -c .yamllint.yml .
+
   validate:
-    name: Validate template YAML and WIQL
+    name: Validate template schema and WIQL
     runs-on: ubuntu-latest
 
     steps:
@@ -44,7 +63,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate template YAML and WIQL
+      - name: Validate template schema and WIQL
         shell: pwsh
         run: ./scripts/Test-TemplateFiles.ps1 -Path .
 
@@ -52,6 +71,7 @@ jobs:
     name: Publish GitHub release assets
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs:
+      - yaml_lint
       - validate
       - version
     permissions:
