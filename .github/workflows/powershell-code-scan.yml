@@ -15,4 +15,4 @@ permissions:
 jobs:
   analyze:
     name: Analyze
-    uses: PolicyVault/.github/.github/workflows/powershell-code-scan.yml@cfd4cdda5f372298a1dc38ebb8fceb0697c4718b
+    uses: PolicyVault/.github/.github/workflows/powershell-code-scan.yml@ccc05a9266eab041a04fc8113f50179c3b65c837
