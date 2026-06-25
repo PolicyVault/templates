@@ -75,6 +75,12 @@ jobs:
           }
           EOF
 
+      - name: Publish results to GitHub code scanning (PR merge ref)
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e
+        with:
+          sarif_file: results.sarif
+
       - name: Publish results to GitHub code scanning (PR head)
         if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
         uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e
