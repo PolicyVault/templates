@@ -1,6 +1,6 @@
 # PolicyVault Policy Templates
 
-A collection of reusable policy templates for [PolicyVault](https://github.com/PolicyVault). These templates provide a starting point for defining work-item–based policies that can be imported directly into PolicyVault.
+A collection of reusable policy templates for [PolicyVault](https://app.policyvault.io). These templates provide a starting point for defining work-item–based policies that can be imported directly into PolicyVault.
 
 ## Overview
 
