@@ -1,5 +1,5 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://raw.githubusercontent.com/PolicyVault/templates/main/schemas/template-catalog-entry.schema.json",
   "title": "PolicyVault Azure DevOps template catalog entry",
   "description": "Schema for PolicyVault work-item query policy templates stored in this repository.",
