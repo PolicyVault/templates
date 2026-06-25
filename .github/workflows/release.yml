@@ -54,7 +54,7 @@ jobs:
         run: yamllint -c .yamllint.yml .
 
   validate:
-    name: Validate template schema and WIQL
+    name: Validate template YAML and WIQL
     runs-on: ubuntu-latest
 
     steps:
@@ -63,7 +63,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Validate template schema and WIQL
+      - name: Validate template YAML and WIQL
         shell: pwsh
         run: ./scripts/Test-TemplateFiles.ps1 -Path .
 
