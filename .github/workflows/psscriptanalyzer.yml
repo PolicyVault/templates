@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 jobs:
-  psscriptanalyzer:
+  analyze:
     name: PSScriptAnalyzer
     runs-on: ubuntu-latest
     permissions:
