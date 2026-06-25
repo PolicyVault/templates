@@ -41,7 +41,7 @@ For tools that use `yaml-language-server` outside VS Code workspace settings, te
 
 ## Release automation
 
-GitHub Actions lint YAML files with `yamllint`, lint GitHub workflow files with `actionlint`, and validate template schema/WIQL rules on every pull request and push to `main`. Pushes to `main` also calculate a release version with GitVersion, derive the release tag from GitVersion's `majorMinorPatch` output so the patch number advances on each new release, create a GitHub release for the tagged repository state, and upload each template YAML file as an explicit release asset for direct programmatic download.
+GitHub Actions lints YAML files with `yamllint` and validates template schema/WIQL rules on every pull request and push to `main`. Pushes to `main` also calculate a release version with GitVersion, derive the release tag from GitVersion's `majorMinorPatch` output so the patch number advances on each new release, create a GitHub release for the tagged repository state, and upload each template YAML file as an explicit release asset for direct programmatic download.
 
 ## Contributing
 
