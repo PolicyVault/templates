@@ -1,0 +1,82 @@
+name: PSScriptAnalyzer
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: PSScriptAnalyzer
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v4.1.1
+
+      - name: Detect PowerShell files
+        id: detect
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t files < <(
+            find . -path './.git' -prune -o -type f \( -name '*.ps1' -o -name '*.psm1' -o -name '*.psd1' \) -print | sort
+          )
+
+          if [ "${#files[@]}" -eq 0 ]; then
+            echo "has_files=false" >> "$GITHUB_OUTPUT"
+            echo "No PowerShell files found. Uploading an empty SARIF result."
+            exit 0
+          fi
+
+          echo "has_files=true" >> "$GITHUB_OUTPUT"
+          printf 'Found %s PowerShell file(s):\n' "${#files[@]}"
+          printf '%s\n' "${files[@]}"
+
+      - name: Analyze PowerShell scripts
+        if: steps.detect.outputs.has_files == 'true'
+        uses: microsoft/psscriptanalyzer-action@6b2948b1944407914a58661c49941824d149734f # v1.1
+        with:
+          path: ./
+          recurse: true
+          severity: '"Error","Warning"'
+          output: results.sarif
+
+      - name: Create empty SARIF result
+        if: steps.detect.outputs.has_files != 'true'
+        shell: bash
+        run: |
+          cat > results.sarif <<'EOF'
+          {
+            "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+            "version": "2.1.0",
+            "runs": [
+              {
+                "tool": {
+                  "driver": {
+                    "name": "PSScriptAnalyzer",
+                    "informationUri": "https://github.com/PowerShell/PSScriptAnalyzer",
+                    "rules": []
+                  }
+                },
+                "results": []
+              }
+            ]
+          }
+          EOF
+
+      - name: Publish results to GitHub code scanning
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        with:
+          sarif_file: results.sarif
