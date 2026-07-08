@@ -15,19 +15,19 @@ metadata:
 
 source:
   platform: azure-devops
-  queryName: Policy - Recent Items In Team
+  queryName: Policy - Recent Items Not In Team
   query: |
     SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
            [System.State], [System.Tags]
     FROM WorkItems
     WHERE [System.TeamProject] = @project
       AND [System.ChangedDate] > @today - 60
-      AND [System.AreaPath] = @teamAreas('[$Project]\$Team')
+      AND NOT [System.AreaPath] UNDER @teamAreas('[$Project]\$Team')
 
 policy:
   rules:
-    - id: all-recent-items-in-team
-      description: Work items must match the in-team query.
-      mustBeInQueryResults: true
+    - id: zero-recent-items-outside-team
+      description: Work items must not match the outside-team query.
+      mustBeInQueryResults: false
   severity: low
   action: warn
