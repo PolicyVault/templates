@@ -1,0 +1,33 @@
+# yaml-language-server: $schema=../schemas/template-catalog-entry.schema.json
+apiVersion: policyvault.io/v1
+kind: WorkItemQueryPolicy
+metadata:
+  name: recently-changed-items-must-belong-to-team
+  title: Recently Changed Items Must Belong To Team
+  description: >
+    Ensures recently changed work items belong to a specific team.
+    Maps $Project and $Team labels to the corresponding team expression.
+    Example: @teamAreas('[$Project]\$Team').
+  tags:
+    - team-scope
+    - area-path
+    - pull-request
+
+source:
+  platform: azure-devops
+  queryName: Policy - Recent Items In Team
+  query: |
+    SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
+           [System.State], [System.Tags]
+    FROM WorkItems
+    WHERE [System.TeamProject] = @project
+      AND [System.ChangedDate] > @today - 60
+      AND [System.AreaPath] = @teamAreas('[$Project]\$Team')
+
+policy:
+  rules:
+    - id: all-recent-items-in-team
+      description: Work items must match the in-team query.
+      mustBeInQueryResults: true
+  severity: low
+  action: warn
