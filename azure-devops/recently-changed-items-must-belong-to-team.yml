@@ -5,8 +5,8 @@ metadata:
   name: recently-changed-items-must-belong-to-team
   title: Recently Changed Items Must Belong To Team
   description: >
-    Ensures recently changed work items belong to a specific team.
-    Maps $Project and $Team labels to the corresponding team expression.
+    Flags recently changed work items that are outside a specific team.
+    Uses $Project and $Team macros to build the team expression.
     Example: @teamAreas('[$Project]\$Team').
   tags:
     - team-scope
