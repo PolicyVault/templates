@@ -102,8 +102,16 @@ jobs:
             if [ -n "$metadata_ref" ] && [ -n "$metadata_sha" ]; then
               if [ "$metadata_ref" = "$allowed_head_ref" ] || [ "$metadata_ref" = "$allowed_merge_ref" ]; then
                 if [[ "$metadata_sha" =~ ^[0-9a-fA-F]{40}$ ]]; then
-                  upload_ref="$metadata_ref"
-                  upload_sha="$metadata_sha"
+                  ref_sha="$(
+                    gh api "repos/${{ github.repository }}/git/ref/${metadata_ref#refs/}" \
+                      --jq '.object.sha // empty' 2>/dev/null || true
+                  )"
+                  if [ -n "$ref_sha" ] && [ "${ref_sha,,}" = "${metadata_sha,,}" ]; then
+                    upload_ref="$metadata_ref"
+                    upload_sha="$metadata_sha"
+                  else
+                    echo "Ignoring SARIF metadata override: sha does not match current target ref."
+                  fi
                 else
                   echo "Ignoring SARIF metadata override: sha is not a full git commit hash."
                 fi
