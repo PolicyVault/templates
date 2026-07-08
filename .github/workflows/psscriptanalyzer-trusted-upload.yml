@@ -1,0 +1,87 @@
+name: PSScriptAnalyzer trusted SARIF upload
+
+on:
+  workflow_run:
+    workflows:
+      - PSScriptAnalyzer
+    types:
+      - completed
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+jobs:
+  upload:
+    name: Upload fork PR SARIF to code scanning
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Resolve run and PR metadata
+        id: meta
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          run_id="${{ github.event.workflow_run.id }}"
+          pr_number="$(jq -r '.workflow_run.pull_requests[0].number // empty' "$GITHUB_EVENT_PATH")"
+          head_sha="$(jq -r '.workflow_run.head_sha // empty' "$GITHUB_EVENT_PATH")"
+
+          if [ -z "$pr_number" ] || [ -z "$head_sha" ]; then
+            echo "No pull request metadata found on workflow_run payload; skipping."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          artifact_id="$(
+            gh api "repos/${{ github.repository }}/actions/runs/${run_id}/artifacts" \
+              --jq '.artifacts[] | select(.name == "psscriptanalyzer-sarif") | .id' \
+              | head -n1
+          )"
+
+          if [ -z "$artifact_id" ]; then
+            echo "Expected artifact 'psscriptanalyzer-sarif' not found for run ${run_id}."
+            exit 1
+          fi
+
+          echo "skip=false" >> "$GITHUB_OUTPUT"
+          echo "artifact_id=$artifact_id" >> "$GITHUB_OUTPUT"
+          echo "pr_ref=refs/pull/${pr_number}/head" >> "$GITHUB_OUTPUT"
+          echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"
+
+      - name: Download SARIF artifact
+        if: steps.meta.outputs.skip == 'false'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          gh api "repos/${{ github.repository }}/actions/artifacts/${{ steps.meta.outputs.artifact_id }}/zip" > artifact.zip
+          unzip -o artifact.zip -d artifact
+
+      - name: Resolve SARIF path
+        if: steps.meta.outputs.skip == 'false'
+        id: sarif
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          sarif_file="$(find artifact -type f -name '*.sarif' | head -n1)"
+
+          if [ -z "$sarif_file" ]; then
+            echo "No SARIF file found in downloaded artifact."
+            exit 1
+          fi
+
+          echo "sarif_file=$sarif_file" >> "$GITHUB_OUTPUT"
+
+      - name: Upload SARIF to code scanning
+        if: steps.meta.outputs.skip == 'false'
+        uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2
+        with:
+          sarif_file: ${{ steps.sarif.outputs.sarif_file }}
+          category: psscriptanalyzer
+          ref: ${{ steps.meta.outputs.pr_ref }}
+          sha: ${{ steps.meta.outputs.head_sha }}
+          wait-for-processing: true
