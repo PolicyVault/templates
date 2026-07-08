@@ -2,12 +2,12 @@
 apiVersion: policyvault.io/v1
 kind: WorkItemQueryPolicy
 metadata:
-  name: recently-changed-items-in-team-area
-  title: Recently Changed Items In Team Area
+  name: recently-changed-items-must-belong-to-team
+  title: Recently Changed Items Must Belong To Team
   description: >
-    Flags recently changed work items that are outside a specific team area.
-    Replace TEAM_AREA_DESCRIPTOR with a full WIQL area expression, for example
-    @teamAreas('[Project]\Team <id:GUID>').
+    Flags recently changed work items that are outside a specific team.
+    Uses $Project and $Team macros to build the team expression.
+    Example: @teamAreas('[$Project]\$Team').
   tags:
     - team-scope
     - area-path
@@ -15,19 +15,19 @@ metadata:
 
 source:
   platform: azure-devops
-  queryName: Policy - Recent Items Outside Team Area
+  queryName: Policy - Recent Items Not In Team
   query: |
     SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
            [System.State], [System.Tags]
     FROM WorkItems
     WHERE [System.TeamProject] = @project
       AND [System.ChangedDate] > @today - 60
-      AND NOT [System.AreaPath] UNDER TEAM_AREA_DESCRIPTOR
+      AND NOT [System.AreaPath] UNDER @teamAreas('[$Project]\$Team')
 
 policy:
   rules:
-    - id: zero-recent-items-outside-team-area
-      description: Work items must not match the outside-team-area query.
+    - id: zero-recent-items-outside-team
+      description: Work items must not match the outside-team query.
       mustBeInQueryResults: false
   severity: low
   action: warn

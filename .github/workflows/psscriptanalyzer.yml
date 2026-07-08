@@ -75,6 +75,27 @@ jobs:
           }
           EOF
 
+      - name: Capture SARIF upload metadata
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          cat > sarif-upload-metadata.json <<EOF
+          {"ref":"${GITHUB_REF}","sha":"${GITHUB_SHA}"}
+          EOF
+
+      - name: Upload SARIF artifact for trusted ingestion
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: psscriptanalyzer-sarif
+          path: |
+            results.sarif
+            sarif-upload-metadata.json
+          if-no-files-found: error
+          retention-days: 1
+
       - name: Publish results to GitHub code scanning
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         uses: github/codeql-action/upload-sarif@8aad20d150bbac5944a9f9d289da16a4b0d87c1e # v4.36.2

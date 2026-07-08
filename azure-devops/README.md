@@ -56,7 +56,7 @@ The policy engine evaluates templates using the boolean `mustBeInQueryResults` r
 | [`backlog-items-parent-must-be-feature.yml`](backlog-items-parent-must-be-feature.yml) | Flags requirement/bug items linked under non-feature parents |
 | [`features-parent-must-be-epic.yml`](features-parent-must-be-epic.yml) | Flags features linked under non-epic parents |
 | [`pull-request-linked-items-must-use-allowed-types.yml`](pull-request-linked-items-must-use-allowed-types.yml) | Blocks when linked PR work items are outside approved type groups |
-| [`recently-changed-items-in-team-area.yml`](recently-changed-items-in-team-area.yml) | Team-area scoped recent changes template (requires team descriptor customization) |
+| [`recently-changed-items-must-belong-to-team.yml`](recently-changed-items-must-belong-to-team.yml) | Ensures recent changes belong to the mapped team (requires `$Project` and `$Team` mapping) |
 | [`tasks-parent-must-be-backlog-item-or-bug.yml`](tasks-parent-must-be-backlog-item-or-bug.yml) | Flags task items linked under invalid parent types |
 | [`work-items-must-not-use-project-root-area.yml`](work-items-must-not-use-project-root-area.yml) | Flags work items that remain on the project root area path |
 
