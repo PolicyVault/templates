@@ -60,23 +60,10 @@ jobs:
             exit 1
           fi
 
-          merge_sha="$(
-            gh pr view "$pr_number" --repo "${{ github.repository }}" --json potentialMergeCommit \
-              --jq '.potentialMergeCommit.oid // empty'
-          )"
-
-          if [ -n "$merge_sha" ]; then
-            upload_ref="refs/pull/${pr_number}/merge"
-            upload_sha="$merge_sha"
-          else
-            upload_ref="refs/pull/${pr_number}/head"
-            upload_sha="$head_sha"
-          fi
-
           echo "skip=false" >> "$GITHUB_OUTPUT"
           echo "artifact_id=$artifact_id" >> "$GITHUB_OUTPUT"
-          echo "pr_ref=$upload_ref" >> "$GITHUB_OUTPUT"
-          echo "upload_sha=$upload_sha" >> "$GITHUB_OUTPUT"
+          echo "fallback_ref=refs/pull/${pr_number}/head" >> "$GITHUB_OUTPUT"
+          echo "fallback_sha=$head_sha" >> "$GITHUB_OUTPUT"
 
       - name: Download SARIF artifact
         if: steps.meta.outputs.skip == 'false'
@@ -96,13 +83,28 @@ jobs:
           set -euo pipefail
 
           sarif_file="artifact/results.sarif"
+          metadata_file="artifact/sarif-upload-metadata.json"
+          upload_ref="${{ steps.meta.outputs.fallback_ref }}"
+          upload_sha="${{ steps.meta.outputs.fallback_sha }}"
 
           if [ ! -f "$sarif_file" ]; then
             echo "Expected SARIF file '$sarif_file' not found in downloaded artifact."
             exit 1
           fi
 
+          if [ -f "$metadata_file" ]; then
+            metadata_ref="$(jq -r '.ref // empty' "$metadata_file")"
+            metadata_sha="$(jq -r '.sha // empty' "$metadata_file")"
+
+            if [ -n "$metadata_ref" ] && [ -n "$metadata_sha" ]; then
+              upload_ref="$metadata_ref"
+              upload_sha="$metadata_sha"
+            fi
+          fi
+
           echo "sarif_file=$sarif_file" >> "$GITHUB_OUTPUT"
+          echo "upload_ref=$upload_ref" >> "$GITHUB_OUTPUT"
+          echo "upload_sha=$upload_sha" >> "$GITHUB_OUTPUT"
 
       - name: Upload SARIF to code scanning
         if: steps.meta.outputs.skip == 'false'
@@ -110,6 +112,6 @@ jobs:
         with:
           sarif_file: ${{ steps.sarif.outputs.sarif_file }}
           category: psscriptanalyzer
-          ref: ${{ steps.meta.outputs.pr_ref }}
-          sha: ${{ steps.meta.outputs.upload_sha }}
+          ref: ${{ steps.sarif.outputs.upload_ref }}
+          sha: ${{ steps.sarif.outputs.upload_sha }}
           wait-for-processing: true
