@@ -59,10 +59,23 @@ jobs:
             exit 1
           fi
 
+          merge_sha="$(
+            gh pr view "$pr_number" --repo "${{ github.repository }}" --json potentialMergeCommit \
+              --jq '.potentialMergeCommit.oid // empty'
+          )"
+
+          if [ -n "$merge_sha" ]; then
+            upload_ref="refs/pull/${pr_number}/merge"
+            upload_sha="$merge_sha"
+          else
+            upload_ref="refs/pull/${pr_number}/head"
+            upload_sha="$head_sha"
+          fi
+
           echo "skip=false" >> "$GITHUB_OUTPUT"
           echo "artifact_id=$artifact_id" >> "$GITHUB_OUTPUT"
-          echo "pr_ref=refs/pull/${pr_number}/head" >> "$GITHUB_OUTPUT"
-          echo "head_sha=$head_sha" >> "$GITHUB_OUTPUT"
+          echo "pr_ref=$upload_ref" >> "$GITHUB_OUTPUT"
+          echo "upload_sha=$upload_sha" >> "$GITHUB_OUTPUT"
 
       - name: Download SARIF artifact
         if: steps.meta.outputs.skip == 'false'
@@ -97,5 +110,5 @@ jobs:
           sarif_file: ${{ steps.sarif.outputs.sarif_file }}
           category: psscriptanalyzer
           ref: ${{ steps.meta.outputs.pr_ref }}
-          sha: ${{ steps.meta.outputs.head_sha }}
+          sha: ${{ steps.meta.outputs.upload_sha }}
           wait-for-processing: true
