@@ -37,6 +37,17 @@ jobs:
             exit 0
           fi
 
+          run_head_repo="$(
+            gh api "repos/${{ github.repository }}/actions/runs/${run_id}" \
+              --jq '.head_repository.full_name // empty'
+          )"
+
+          if [ "$run_head_repo" = "${{ github.repository }}" ]; then
+            echo "Same-repo PR run detected (${run_head_repo}); direct SARIF upload already handled in source workflow."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
           artifact_id="$(
             gh api "repos/${{ github.repository }}/actions/runs/${run_id}/artifacts" \
               --jq '.artifacts[] | select(.name == "psscriptanalyzer-sarif") | .id' \
