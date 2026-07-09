@@ -6,8 +6,8 @@ metadata:
   title: Recently Changed Items Must Belong To Team
   description: >
     Flags recently changed work items that are outside a specific team.
-    Uses $Project and $Team macros to build the team expression.
-    Example: @teamAreas('[$Project]\$Team').
+    Uses the $Team macro to build the team expression.
+    Example: @teamAreas('$Team').
   tags:
     - team-scope
     - area-path
@@ -22,7 +22,7 @@ source:
     FROM WorkItems
     WHERE [System.TeamProject] = @project
       AND [System.ChangedDate] > @today - 60
-      AND NOT [System.AreaPath] UNDER @teamAreas('[$Project]\$Team')
+      AND NOT [System.AreaPath] = @teamAreas('$Team')
 
 policy:
   rules:
