@@ -5,9 +5,9 @@ metadata:
   name: recently-changed-items-must-belong-to-team
   title: Recently Changed Items Must Belong To Team
   description: >
-    Flags recently changed work items that are outside a specific team.
-    Uses the $Team macro to build the team expression.
-    Example: @teamAreas('$Team').
+    Ensures recently changed work items belong to a specific team.
+    Uses $Project and $Team macros to build the team expression.
+    Example: @teamAreas('[$Project]\$Team').
   tags:
     - team-scope
     - area-path
@@ -15,19 +15,19 @@ metadata:
 
 source:
   platform: azure-devops
-  queryName: Policy - Recent Items Not In Team
+  queryName: Policy - Recent Items In Team
   query: |
     SELECT [System.Id], [System.WorkItemType], [System.Title], [System.AssignedTo],
            [System.State], [System.Tags]
     FROM WorkItems
     WHERE [System.TeamProject] = @project
       AND [System.ChangedDate] > @today - 60
-      AND NOT [System.AreaPath] = @teamAreas('$Team')
+      AND [System.AreaPath] IN (@teamAreas('[$Project]\$Team'))
 
 policy:
   rules:
-    - id: zero-recent-items-outside-team
-      description: Work items must not match the outside-team query.
-      mustBeInQueryResults: false
+    - id: recent-items-belong-to-team
+      description: Work items must belong to the team.
+      mustBeInQueryResults: true
   severity: low
   action: warn
